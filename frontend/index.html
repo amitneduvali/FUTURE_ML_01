@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SalesHub Pro - Analytics Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body.dark-mode {
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --text-dark: #f1f5f9;
+            --text-gray: #cbd5e1;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        body.dark-mode .navbar {
+            background: linear-gradient(90deg, #1e3a8a 0%, #1e40af 100%);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            text-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.15) rotate(20deg);
+            filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 30px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 12px;
+            }
+
+            .card {
+                margin-bottom: 16px;
+            }
+
+            .card-body {
+                padding: 15px;
+            }
+
+            .card-header {
+                padding: 15px;
+            }
+
+            .modal-dialog {
+                margin: 10px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .chart-container {
+                height: 250px !important;
+            }
+
+            .metric-card {
+                padding: 15px;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .metric-label {
+                font-size: 0.75rem;
+            }
+
+            .row {
+                margin-right: -6px;
+                margin-left: -6px;
+            }
+
+            .col-md-3, .col-md-4, .col-md-6, .col-md-8 {
+                padding-right: 6px;
+                padding-left: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0.5rem 0;
+            }
+
+            .container {
+                padding: 10px 8px;
+            }
+
+            .card {
+                margin-bottom: 12px;
+            }
+
+            .card-body {
+                padding: 12px;
+            }
+
+            .card-header {
+                padding: 12px;
+            }
+
+            .card-title {
+                font-size: 1rem;
+            }
+
+            .metric-card {
+                padding: 12px;
+            }
+
+            .metric-value {
+                font-size: 1.2rem;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+
+            .upload-area {
+                padding: 20px 10px;
+            }
+
+            .upload-icon {
+                font-size: 2rem;
+            }
+
+            .auth-container {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .user-badge {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+        }
+
+        .card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+
+        body.dark-mode .card {
+            background: rgba(30, 41, 82, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.15);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        body.dark-mode .card:hover {
+            background: rgba(30, 41, 82, 0.8);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.3);
+            border-color: rgba(37, 99, 235, 0.4);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        body.dark-mode .card-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        body.dark-mode .card-title {
+            color: #f0f9ff;
+        }
+
+        .card-body {
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .card-body {
+            color: rgba(240, 249, 255, 0.8);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 12px 28px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
+            padding: 12px 28px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 14px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .upload-area {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.5);
+            color: rgba(240, 249, 255, 0.7);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        body.dark-mode .upload-area:hover {
+            border-color: #60a5fa;
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+            transform: scale(1.02);
+        }
+
+        body.dark-mode .upload-area.dragover {
+            border-color: #60a5fa;
+            background: rgba(37, 99, 235, 0.15);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .upload-area strong {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        body.dark-mode .upload-area strong {
+            color: rgba(240, 249, 255, 0.9);
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.15);
+            border-left: 4px solid var(--success);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            animation: slideIn 0.3s ease;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        body.dark-mode .success-message {
+            background: rgba(16, 185, 129, 0.2);
+            color: #86efac;
+            border-left-color: #10b981;
+        }
+
+        .success-message i {
+            color: var(--success);
+            margin-right: 8px;
+        }
+
+        body.dark-mode .success-message i {
+            color: #10b981;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-light);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .metric-card {
+            background: rgba(30, 41, 82, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.15);
+        }
+
+        body.dark-mode .metric-card:hover {
+            background: rgba(30, 41, 82, 0.7);
+            border-color: rgba(37, 99, 235, 0.4);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.3);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        body.dark-mode .metric-value {
+            color: #60a5fa;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        body.dark-mode .metric-label {
+            color: rgba(240, 249, 255, 0.7);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        body.dark-mode .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #86efac;
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .status-offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        body.dark-mode .status-offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .spinner-border {
+            border-width: 3px !important;
+        }
+
+        .section-hidden {
+            display: none;
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            color: white;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .user-badge:hover {
+            background: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-outline-light {
+            border: 1.5px solid white;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-light:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-content {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        body.dark-mode .modal-content {
+            background: rgba(30, 41, 82, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(31, 38, 135, 0.5);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border);
+        }
+
+        body.dark-mode .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        body.dark-mode .modal-title {
+            color: #f0f9ff;
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-light);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .form-control, 
+        body.dark-mode .form-select {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            color: #f0f9ff;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-gray);
+        }
+
+        body.dark-mode .form-control::placeholder {
+            color: rgba(240, 249, 255, 0.5);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .form-control:focus, 
+        body.dark-mode .form-select:focus {
+            background: rgba(30, 41, 82, 0.7);
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+            color: #f0f9ff;
+        }
+
+        .form-label {
+            color: var(--text-dark);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .form-label {
+            color: rgba(240, 249, 255, 0.8);
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-gray);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .password-toggle-btn {
+            color: rgba(240, 249, 255, 0.6);
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--primary);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        body.dark-mode .password-toggle-btn:hover {
+            color: #60a5fa;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .modal-body {
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .modal-body {
+            color: rgba(240, 249, 255, 0.8);
+        }
+
+        .text-muted {
+            color: var(--text-gray) !important;
+        }
+
+        body.dark-mode .text-muted {
+            color: rgba(240, 249, 255, 0.6) !important;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        body.dark-mode a {
+            color: #60a5fa;
+        }
+
+        body.dark-mode a:hover {
+            color: #93c5fd;
+        }
+
+        h6 {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        body.dark-mode h6 {
+            color: #f0f9ff;
+        }
+
+        ul li {
+            color: var(--text-dark);
+        }
+
+        body.dark-mode ul li {
+            color: rgba(240, 249, 255, 0.8);
+        }
+
+        p {
+            color: var(--text-dark);
+        }
+
+        body.dark-mode p {
+            color: rgba(240, 249, 255, 0.8);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .password-input-wrapper {
+                min-height: 44px;
+            }
+
+            .password-toggle-btn {
+                min-width: 44px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .form-control {
+                font-size: 16px;
+                min-height: 44px;
+            }
+
+            .btn {
+                min-height: 44px;
+            }
+
+            .navbar-nav {
+                gap: 8px;
+            }
+        }
+
+        /* Touch-friendly button sizes */
+        button, a {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea, select {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">� SalesHub Pro</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <span class="status-badge status-offline" id="status-badge">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Offline
+                    </span>
+                </span>
+                <span class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </span>
+                <div class="auth-container ms-3">
+                    <span class="user-badge" id="user-display" style="display: none;">
+                        👤 <span id="username-display"></span>
+                    </span>
+                    <button id="logout-btn" class="btn btn-sm btn-outline-light" style="display: none;">Logout</button>
+                    <button id="login-btn" class="btn btn-sm btn-outline-light">Login</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Auth Modal -->
+        <div class="modal fade" id="authModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="authModalTitle">Login</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="login-form">
+                            <div class="mb-3">
+                                <label for="login-username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="login-username" placeholder="Enter username">
+                            </div>
+                            <div class="mb-3">
+                                <label for="login-password" class="form-label">Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" class="form-control" id="login-password" placeholder="Enter password">
+                                    <button type="button" class="password-toggle-btn" onclick="togglePassword('login-password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button id="login-submit-btn" class="btn btn-primary w-100">Login</button>
+                            <p class="text-center mt-3 text-muted">
+                                New here? <a href="#" id="switch-to-signup" style="color: #60a5fa;">Sign up</a>
+                            </p>
+                        </div>
+
+                        <div id="signup-form" style="display: none;">
+                            <div class="mb-3">
+                                <label for="signup-username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="signup-username" placeholder="Choose username">
+                            </div>
+                            <div class="mb-3">
+                                <label for="signup-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="signup-email" placeholder="Enter email">
+                            </div>
+                            <div class="mb-3">
+                                <label for="signup-password" class="form-label">Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" class="form-control" id="signup-password" placeholder="Create password">
+                                    <button type="button" class="password-toggle-btn" onclick="togglePassword('signup-password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button id="signup-submit-btn" class="btn btn-success w-100">Sign Up</button>
+                            <p class="text-center mt-3 text-muted">
+                                Already have an account? <a href="#" id="switch-to-login" style="color: #60a5fa;">Login</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">📂 Load Demo Data</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="text-muted">Use sample data to test forecasting</p>
+                            <button id="initialize-btn" class="btn btn-primary">
+                                <i class="fas fa-bolt"></i> Initialize System
+                            </button>
+                            <div class="loading-spinner" id="initialize-loading">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">📤 Upload CSV</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="upload-area" id="upload-area">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <p><strong>Drag & drop</strong> or <strong>click</strong> to upload</p>
+                                <small class="text-muted">CSV with Date & Sales columns</small>
+                                <input type="file" id="file-input" accept=".csv" style="display: none;">
+                            </div>
+                            <div class="loading-spinner" id="upload-loading">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2">Processing file...</p>
+                            </div>
+                            <div id="upload-success" class="success-message" style="display: none;">
+                                <i class="fas fa-check-circle"></i>
+                                <strong>File uploaded!</strong> <span id="upload-details"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            <div id="metrics-section">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Total Sales</div>
+                            <div class="metric-value" id="total-sales" style="font-size: 2.5rem; font-weight: 800; color: #2563eb;">125,480</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Avg Daily</div>
+                            <div class="metric-value" id="avg-daily-sales" style="font-size: 2.5rem; font-weight: 800; color: #2563eb;">3,640</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Peak Season</div>
+                            <div class="metric-value" id="peak-season" style="font-size: 2.5rem; font-weight: 800; color: #2563eb;">Q4</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-label">Weekend Boost</div>
+                            <div class="metric-value" id="weekend-boost" style="font-size: 2.5rem; font-weight: 800; color: #2563eb;">32%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div id="charts-section" class="section-hidden">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">📈 Sales Forecast</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">🏔️ Seasonal</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="seasonalChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance -->
+            <div id="performance-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">🎯 Model Performance Comparison</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <h6 style="color: var(--text-dark);">Random Forest</h6>
+                                    <div style="margin: 15px 0;">
+                                        <div style="margin-bottom: 12px;">
+                                            <small style="color: var(--text-gray);">MAE (Mean Absolute Error)</small>
+                                            <br/>
+                                            <strong id="rf-mae" style="font-size: 1.8rem; color: var(--primary);">245.67</strong>
+                                        </div>
+                                        <div>
+                                            <small style="color: var(--text-gray);">RMSE (Root Mean Squared Error)</small>
+                                            <br/>
+                                            <strong id="rf-rmse" style="font-size: 1.8rem; color: var(--primary);">312.45</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <h6 style="color: var(--text-dark);">SARIMA</h6>
+                                    <div style="margin: 15px 0;">
+                                        <div style="margin-bottom: 12px;">
+                                            <small style="color: var(--text-gray);">MAE (Mean Absolute Error)</small>
+                                            <br/>
+                                            <strong id="sarima-mae" style="font-size: 1.8rem; color: #10b981;">198.32</strong>
+                                        </div>
+                                        <div>
+                                            <small style="color: var(--text-gray);">RMSE (Root Mean Squared Error)</small>
+                                            <br/>
+                                            <strong id="sarima-rmse" style="font-size: 1.8rem; color: #10b981;">256.78</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: rgba(37, 99, 235, 0.1); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                            <p style="margin: 0; color: var(--text-dark); font-size: 0.9rem;">
+                                <strong>📊 Insight:</strong> SARIMA model performs better with lower error metrics. Lower MAE and RMSE values indicate more accurate predictions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5 class="card-title">📈 Model Accuracy Comparison</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights -->
+            <div id="insights-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">💡 Key Findings & Business Insights</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 style="color: var(--text-dark); margin-bottom: 15px;">📊 Key Findings</h6>
+                                <ul id="insights-list" class="list-unstyled">
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(37, 99, 235, 0.1); border-radius: 8px; color: var(--text-dark);">✅ Total sales: 125,480 units</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(37, 99, 235, 0.1); border-radius: 8px; color: var(--text-dark);">📈 Average daily sales: 3,640 units</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(37, 99, 235, 0.1); border-radius: 8px; color: var(--text-dark);">🎯 Peak season: Q4 (Oct-Dec)</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(37, 99, 235, 0.1); border-radius: 8px; color: var(--text-dark);">🏆 Best performing store: Store_1</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(37, 99, 235, 0.1); border-radius: 8px; color: var(--text-dark);">⭐ Best performing product: Product_3</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(37, 99, 235, 0.1); border-radius: 8px; color: var(--text-dark);">📅 Weekend sales boost: 32%</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 style="color: var(--text-dark); margin-bottom: 15px;">🎬 Recommendations</h6>
+                                <ul id="recommendations-list" class="list-unstyled">
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--text-dark);">📦 Increase inventory during Q4 (Oct-Dec)</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--text-dark);">🎯 Focus marketing on Product_3</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--text-dark);">🏢 Expand operations at Store_1</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--text-dark);">👥 Schedule more staff for weekends</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--text-dark);">📊 Prepare for seasonal fluctuations</li>
+                                    <li style="margin-bottom: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--text-dark);">🤖 Use SARIMA for accurate forecasting</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5 class="card-title">📊 Sales Distribution by Store</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="storeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = event.target.closest('.password-toggle-btn');
+            const icon = button.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

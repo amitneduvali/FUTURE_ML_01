@@ -1,0 +1,2 @@
+Total_Historical_Sales,Avg_Daily_Sales,Forecast_Period_Days,Avg_Forecast_Sales,Model_MAE,Model_RMSE,Peak_Season,Best_Store,Best_Product
+443714,607.827397260274,90,351.7337703372056,222.8949099422334,280.38647943235435,Spring,Store_1,Product_1

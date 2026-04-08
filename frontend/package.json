@@ -1,0 +1,13 @@
+{
+  "name": "sales-forecasting-dashboard",
+  "version": "1.0.0",
+  "description": "Frontend dashboard for sales forecasting application",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "dev": "python -m http.server 3000"
+  },
+  "keywords": ["dashboard", "forecasting", "sales"],
+  "author": "AI Assistant",
+  "license": "MIT"
+}
